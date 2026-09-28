@@ -1,0 +1,35 @@
+.container { width: min(1120px, calc(100% - 80px)); margin-inline: auto; }
+.site-header { background: var(--white); border-bottom: 1px solid var(--line); }
+.header-inner { min-height: 100px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+nav { display: flex; align-items: center; gap: 36px; }
+.hero { display: grid; grid-template-columns: 1.35fr 1fr; align-items: center; gap: 72px; padding-block: 76px 80px; }
+.locations-section { padding-block: 48px 30px; background: #f0f2f7; border-block: 1px solid var(--line); }
+.section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+.dining-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.guide-section { display: grid; grid-template-columns: 1fr 2fr; gap: 60px; padding-block: 62px 52px; }
+.tier-guide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding-top: 8px; }
+.closing-note { display: flex; align-items: center; justify-content: center; gap: 18px; padding-block: 30px 48px; }
+.site-footer { border-top: 1px solid var(--line); background: var(--white); }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 28px; }
+@media (min-width: 1500px) { .hero { padding-block: 96px; } }
+@media (max-width: 1000px) {
+  .container { width: calc(100% - 48px); }
+  .hero { gap: 32px; grid-template-columns: 1.2fr 1fr; }
+  .guide-section { gap: 32px; grid-template-columns: 1fr; }
+  .guide-intro { max-width: 480px; }
+}
+@media (max-width: 700px) {
+  .container { width: calc(100% - 40px); }
+  .header-inner { min-height: 112px; flex-wrap: wrap; justify-content: center; gap: 18px; padding-block: 20px; }
+  nav { justify-content: center; width: 100%; gap: 32px; }
+  .hero { grid-template-columns: 1fr; padding-block: 44px; gap: 32px; }
+  .section-heading { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .dining-grid { grid-template-columns: 1fr; gap: 20px; }
+  .locations-section { padding-block: 32px 24px; }
+  .guide-section { padding-block: 40px 24px; gap: 28px; }
+  .tier-guide { gap: 20px; grid-template-columns: 1fr; }
+  .footer-inner { flex-wrap: wrap; justify-content: center; gap: 16px 24px; text-align: center; }
+  .footer-brand { width: 100%; }
+  .closing-note { padding-block: 24px 36px; gap: 12px; }
+  .desktop-break { display: none; }
+}
