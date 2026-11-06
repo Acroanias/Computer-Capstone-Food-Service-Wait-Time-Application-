@@ -10,11 +10,16 @@ import java.sql.SQLException;
  *
  * Run with:   mvn compile exec:java
  *
- * Routes (Stage 2):
+ * Routes (Stage 4):
  *   POST /api/event   <- the Arduino sends sensor events here
  *   GET  /api/status  <- the website polls this for wait time + capacity
  *   POST /api/reset   <- manual reset for demo day
  *   GET  /api/events/recent <- last 20 logged events (debugging)
+ *   GET  /api/snapshots/recent <- last 20 queue snapshots (debugging)
+ *   GET  /api/analytics/peak <- busiest times of the week
+ *   GET  /api/analytics/projection <- projected wait for the next hours
+ *   POST /api/seed <- load fake history for demos
+ *   POST /api/seed/clear <- remove the fake history again
  */
 public class Main {
 
@@ -27,6 +32,13 @@ public class Main {
         // If this fails the server stops right away, which is what we
         // want: better to know at startup than halfway through a demo.
         Database db = new Database("kiosk.db");
+
+        // Start the background task that saves a snapshot of the queue
+        // every 120 seconds. For quick testing, lower this to 10.
+        new SnapshotScheduler(state, db, 120).start();
+
+        // Reads the stored snapshots and computes peak times + projections
+        AnalyticsService analytics = new AnalyticsService(db);
 
         Javalin app = Javalin.create(config -> {
             // CORS: lets a website served from a different origin (e.g. a
@@ -86,6 +98,35 @@ public class Main {
         // ---------- Debugging: peek at what's been logged ----------
         app.get("/api/events/recent", ctx -> {
             ctx.json(db.getRecentEvents(20));
+        });
+
+        app.get("/api/snapshots/recent", ctx -> {
+            ctx.json(db.getRecentSnapshots(20));
+        });
+
+        // ---------- Analytics (website analytics page) ----------
+        app.get("/api/analytics/peak", ctx -> {
+            ctx.json(analytics.getPeakTimes());
+        });
+
+        app.get("/api/analytics/projection", ctx -> {
+            ctx.json(analytics.getProjection());
+        });
+
+        // ---------- Fake data for demos ----------
+        // Generates 4 weeks of fake snapshots so analytics aren't empty.
+        // Calling it again replaces the old fake data instead of piling up.
+        app.post("/api/seed", ctx -> {
+            int rows = SeedData.generate(db);
+            System.out.println("Seeded " + rows + " fake snapshots.");
+            ctx.json(Map.of("seededRows", rows));
+        });
+
+        // Removes ONLY fake rows (real sensor data is untouched).
+        app.post("/api/seed/clear", ctx -> {
+            int removed = db.clearSeedData();
+            System.out.println("Removed " + removed + " fake snapshots.");
+            ctx.json(Map.of("removedRows", removed));
         });
 
         // ---------- Demo-day safety net ----------
